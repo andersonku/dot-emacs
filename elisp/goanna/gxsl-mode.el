@@ -109,11 +109,9 @@
 	    (modify-syntax-entry ?/ ".")
 	    (modify-syntax-entry ?< ".")
 	    (modify-syntax-entry ?> ".")
+            (run-hooks 'prog-mode-hook)
 	    )
 	  )
-
-(define-derived-mode gxsl-mode prog-mode "GXSL"
-  "Major mode for editing GXSL.")
 
 (provide 'gxsl-mode)
 

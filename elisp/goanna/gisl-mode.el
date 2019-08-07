@@ -73,8 +73,8 @@
   "Major mode for editing gisl files "
   )
 
-(define-derived-mode gisl-mode prog-mode "GISL"
-  "Major mode for editing GISL.")
+(add-hook 'gisl-mode-hook
+	  (lambda () (run-hooks 'prog-mode-hook)))
 
 (provide 'gisl-mode)
 
