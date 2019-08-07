@@ -73,6 +73,9 @@
   "Major mode for editing gisl files "
   )
 
+(define-derived-mode gisl-mode prog-mode "GISL"
+  "Major mode for editing GISL.")
+
 (provide 'gisl-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

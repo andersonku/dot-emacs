@@ -66,6 +66,9 @@
   "Major mode for editing gpsl files "
   )
 
+(define-derived-mode gpsl-mode prog-mode "GPSL"
+  "Major mode for editing GPSL.")
+
 (provide 'gpsl-mode)
 
 

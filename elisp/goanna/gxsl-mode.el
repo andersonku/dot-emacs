@@ -112,6 +112,9 @@
 	    )
 	  )
 
+(define-derived-mode gxsl-mode prog-mode "GXSL"
+  "Major mode for editing GXSL.")
+
 (provide 'gxsl-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
