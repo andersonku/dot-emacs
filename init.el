@@ -29,10 +29,14 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+
+;;; Can move to eval-when-compile when things stablises
+;;; https://ladicle.com/post/config/
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
+  (package-install 'diminish)
   (package-install 'use-package))
 (setq use-package-verbose t)
 (setq use-package-always-ensure t)
@@ -51,6 +55,18 @@
 ;;----------------------------------------------------------------------------
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
+;; Quiet Startup
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq inhibit-startup-echo-area-message t)
+(setq initial-scratch-message nil)
+
+;;; Show path if names are same
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets) 
+
+(setq-default kill-whole-line t)	; Kill line including '\n'
+(setq-default indent-tabs-mode nil)   ; use space
+
 ;; Save History
 (setq savehist-file "~/.emacs.d/savehist")
 (savehist-mode 1)
@@ -63,7 +79,8 @@
         regexp-search-ring))
 
 ;; Disable Toolbar
-(tool-bar-mode -1)
+(tool-bar-mode 0)
+(menu-bar-mode 0)
 
 (setq sentence-end-double-space nil)
 
@@ -120,6 +137,10 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'after-make-frame-functions
           (lambda (frame)
             (select-frame frame)))
+
+(xterm-mouse-mode t)
+(global-set-key   [mouse-4] '(lambda () (interactive) (scroll-down 1)))
+(global-set-key   [mouse-5] '(lambda () (interactive) (scroll-up   1)))
 
 ;;----------------------------------------------------------------------------
 ;;; Packages
@@ -210,10 +231,40 @@ point reaches the beginning or end of the buffer, stop there."
  )
 
 ;;; Recent files
-(require 'recentf)
-(setq recentf-max-saved-items 200
-      recentf-max-menu-items 15)
-(recentf-mode)
+;; (require 'recentf)
+;; (setq recentf-max-saved-items 20000
+;;       recentf-max-menu-items 15)
+;; (recentf-mode)
+
+;; Recent files
+(use-package recentf
+  :ensure nil
+  :hook (after-init . recentf-mode)
+  :custom
+  (recentf-max-saved-items 20000000)
+  (recentf-auto-cleanup 'never)
+  (recentf-exclude '((expand-file-name package-user-dir)
+                     ".cache"
+                     "cache"
+                     "recentf"
+                     "COMMIT_EDITMSG\\'"))
+  :preface
+  (defun ladicle/recentf-save-list-silence ()
+    (interactive)
+    (let ((message-log-max nil))
+      (if (fboundp 'shut-up)
+          (shut-up (recentf-save-list))
+        (recentf-save-list)))
+    (message ""))
+  (defun ladicle/recentf-cleanup-silence ()
+    (interactive)
+    (let ((message-log-max nil))
+      (if shutup-p
+          (shut-up (recentf-cleanup))
+        (recentf-cleanup)))
+    (message ""))
+  :hook
+  (focus-out-hook . (ladicle/recentf-save-list-silence ladicle/recentf-cleanup-silence)))
 
 ;;; Snippets
 (use-package yasnippet
@@ -241,6 +292,59 @@ point reaches the beginning or end of the buffer, stop there."
    ("M-Z" . avy-zap-to-char-dwim)))
 
 (use-package rainbow-delimiters :disabled t)
+
+;; Delete selection if insert someting
+(use-package delsel
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
+
+;; Automatically reload files was modified by external program
+(use-package autorevert
+  :ensure nil
+  :diminish
+  :hook (after-init . global-auto-revert-mode))
+
+;; Hungry deletion
+(use-package hungry-delete
+  :diminish
+  :hook (after-init . global-hungry-delete-mode)
+  :config (setq-default hungry-delete-chars-to-skip " \t\f\v"))
+
+(use-package smartparens
+  :hook
+  (after-init . smartparens-global-mode)
+  :config
+  (require 'smartparens-config)
+  (sp-pair "=" "=" :actions '(wrap))
+  (sp-pair "+" "+" :actions '(wrap))
+  (sp-pair "<" ">" :actions '(wrap))
+  (sp-pair "$" "$" :actions '(wrap)))
+
+(use-package exec-path-from-shell
+  :custom
+  (exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-variables '("PATH" "GOPATH"))
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+
+;;; macOS
+(when (equal system-type 'darwin)
+  (setq mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
+  (setq ns-auto-hide-menu-bar t)
+  (setq ns-use-proxy-icon nil)
+  (setq initial-frame-alist
+     (append
+      '((ns-transparent-titlebar . t)
+        (ns-appearance . dark)
+        (vertical-scroll-bars . nil)
+        (internal-border-width . 0)))))
+;; pbcopy
+(use-package pbcopy
+:if (eq system-type 'darwin)
+:hook (dashboard-mode . (turn-on-pbcopy)))
 
 ;;----------------------------------------------------------------------------
 ;;; Theme
@@ -376,9 +480,17 @@ When `universal-argument' is called first, cut whole buffer (but respect `narrow
  '(custom-safe-themes
    (quote
     ("c82d24bfba431e8104219bfd8e90d47f1ad6b80a504a7900cbee002a8f04392f" default)))
+ '(exec-path-from-shell-check-startup-files nil)
+ '(exec-path-from-shell-variables (quote ("PATH" "GOPATH")))
  '(package-selected-packages
    (quote
-    (company yasnippet helm-swoop miniedit diminish use-package))))
+    (company yasnippet helm-swoop miniedit diminish use-package)))
+ '(recentf-auto-cleanup (quote never) t)
+ '(recentf-exclude
+   (quote
+    ((expand-file-name package-user-dir)
+     ".cache" "cache" "recentf" "COMMIT_EDITMSG\\'")) t)
+ '(recentf-max-saved-items 20000000 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
