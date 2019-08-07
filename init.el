@@ -1,6 +1,10 @@
 (setq user-full-name "Anderson Ku"
       user-mail-address "andersonku@gmail.com")
 
+(setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+
 ;;----------------------------------------------------------------------------
 ;; Adjust garbage collection thresholds during startup, and thereafter
 ;;----------------------------------------------------------------------------
@@ -697,73 +701,6 @@ When `universal-argument' is called first, cut whole buffer (but respect `narrow
                      (time-subtract (current-time) emacs-start-time))))
                (message "Loading %s...done (%.3fs) [after-init]"
                         ,load-file-name elapsed))) t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(column-number-mode t)
- '(custom-safe-themes
-   (quote
-    ("c82d24bfba431e8104219bfd8e90d47f1ad6b80a504a7900cbee002a8f04392f" default)))
- '(dashboard-center-content t)
- '(dashboard-items (quote ((recents . 15) (projects . 5) (bookmarks . 5))) t)
- '(dashboard-startup-banner 4 t)
- '(dimmer-exclusion-regexp-list
-   (quote
-    (".*Minibuf.*" ".*which-key.*" ".*NeoTree.*" ".*Messages.*" ".*Async.*" ".*Warnings.*" ".*LV.*" ".*Ilist.*")) t)
- '(dimmer-fraction 0.5)
- '(exec-path-from-shell-check-startup-files nil)
- '(exec-path-from-shell-variables (quote ("PATH" "GOPATH")))
- '(flyspell-issue-message-flag nil t)
- '(git-gutter:added-sign "+")
- '(git-gutter:deleted-sign "-")
- '(git-gutter:modified-sign "~")
- '(global-anzu-mode t)
- '(ispell-extra-args
-   (quote
-    ("--sug-mode=ultra" "--lang=en_US" "--run-together")) t)
- '(ispell-program-name "aspell" t)
- '(markdown-bold-underscore t)
- '(markdown-enable-math t)
- '(markdown-header-scaling t)
- '(markdown-hide-markup nil)
- '(markdown-hide-urls nil)
- '(markdown-indent-function t)
- '(markdown-italic-underscore t)
- '(package-selected-packages
-   (quote
-    (deadgrep beacon highlight-symbol fill-column-indicator yaml-mode logview markdown-toc markdown-mode flyspell-correct-ivy anzu posframe company yasnippet helm-swoop miniedit diminish use-package)))
- '(recentf-auto-cleanup (quote never) t)
- '(recentf-exclude
-   (quote
-    ((expand-file-name package-user-dir)
-     ".cache" "cache" "recentf" "COMMIT_EDITMSG\\'")) t)
- '(recentf-max-saved-items 20000000 t)
- '(show-paren-mode t)
- '(show-paren-style (quote mixed))
- '(show-paren-when-point-in-periphery t)
- '(show-paren-when-point-inside-paren t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(dashboard-heading ((t (:foreground "#f1fa8c" :weight bold))))
- '(flyspell-duplicate ((t (:underline (:color "#50fa7b" :style wave)))))
- '(flyspell-incorrect ((t (:underline (:color "#f1fa8c" :style wave)))))
- '(font-lock-variable-name-face ((t (:foreground "violet"))))
- '(git-gutter:added ((t (:foreground "#50fa7b" :background "#50fa7b"))))
- '(git-gutter:deleted ((t (:foreground "#ff79c6" :background "#ff79c6"))))
- '(git-gutter:modified ((t (:foreground "#f1fa8c" :background "#f1fa8c"))))
- '(markdown-header-delimiter-face ((t (:foreground "mediumpurple"))))
- '(markdown-header-face-1 ((t (:foreground "violet" :weight bold :height 1.0))))
- '(markdown-header-face-2 ((t (:foreground "lightslateblue" :weight bold :height 1.0))))
- '(markdown-header-face-3 ((t (:foreground "mediumpurple1" :weight bold :height 1.0))))
- '(markdown-link-face ((t (:background "#0e1014" :foreground "#bd93f9"))))
- '(markdown-list-face ((t (:foreground "mediumpurple"))))
- '(markdown-pre-face ((t (:foreground "#bd98fe"))))
- '(show-paren-match ((nil (:background "#44475a" :foreground "#f1fa8c")))))
 
 ;;----------------------------------------------------------------------------
 ;; Goanna stuff
