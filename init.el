@@ -1,6 +1,9 @@
 (setq user-full-name "Anderson Ku"
       user-mail-address "andersonku@gmail.com")
 
+;;----------------------------------------------------------------------------
+;; Move Custom stuff to .custom.el
+;;----------------------------------------------------------------------------
 (setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
@@ -19,10 +22,14 @@
                    gc-cons-percentage 0.1)
              (garbage-collect)) t)
 
-;;; 
+;;----------------------------------------------------------------------------
+;; Benchmarking
+;;----------------------------------------------------------------------------
 (defconst emacs-start-time (current-time))
 
-;;; My elisp director
+;;----------------------------------------------------------------------------
+;; My custom scripts
+;;----------------------------------------------------------------------------
 (add-to-list 'load-path "~/.emacs.d/elisp")
 
 ;;----------------------------------------------------------------------------
@@ -57,6 +64,11 @@
 ;;----------------------------------------------------------------------------
 ;; Settings
 ;;----------------------------------------------------------------------------
+
+;;; Save session
+(desktop-save-mode 1)
+
+;;; Don't put backup files in place
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 
 ;; Quiet Startup
@@ -190,7 +202,7 @@ point reaches the beginning or end of the buffer, stop there."
          ("C-x c y" . helm-yas-complete)
          ("C-x c Y" . helm-yas-create-snippet-on-region)
          ("C-x c SPC" . helm-all-mark-rings)))
-(ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
+;; (ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
 
 ;;; Display a more compact mode line
 (use-package smart-mode-line)
@@ -226,12 +238,6 @@ point reaches the beginning or end of the buffer, stop there."
    (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
    (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop))
  )
-
-;;; Recent files
-;; (require 'recentf)
-;; (setq recentf-max-saved-items 20000
-;;       recentf-max-menu-items 15)
-;; (recentf-mode)
 
 ;; Recent files
 (use-package recentf
@@ -287,8 +293,6 @@ point reaches the beginning or end of the buffer, stop there."
   (("M-z" . avy-zap-up-to-char-dwim)
    ("M-Z" . avy-zap-to-char-dwim)))
 
-(use-package rainbow-delimiters :disabled t)
-
 ;; Delete selection if insert someting
 (use-package delsel
   :ensure nil
@@ -326,28 +330,24 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 ;;; macOS
-(when (equal system-type 'darwin)
-  (setq mac-option-modifier 'super)
-  (setq mac-command-modifier 'meta)
-  (setq ns-auto-hide-menu-bar t)
-  (setq ns-use-proxy-icon nil)
-  (setq initial-frame-alist
-     (append
-      '((ns-transparent-titlebar . t)
-        (ns-appearance . dark)
-        (vertical-scroll-bars . nil)
-        (internal-border-width . 0)))))
+;; (when (equal system-type 'darwin)
+;;   (setq mac-option-modifier 'super)
+;;   (setq mac-command-modifier 'meta)
+;;   (setq ns-auto-hide-menu-bar t)
+;;   (setq ns-use-proxy-icon nil)
+;;   (setq initial-frame-alist
+;;      (append
+;;       '((ns-transparent-titlebar . t)
+;;         (ns-appearance . dark)
+;;         (vertical-scroll-bars . nil)
+;;         (internal-border-width . 0)))))
+
 ;; pbcopy
 (use-package pbcopy
 :if (eq system-type 'darwin)
 :hook (dashboard-mode . (turn-on-pbcopy)))
 
 (use-package posframe)
-
-(use-package anzu
-  :diminish
-  :hook
-  (after-init . global-anzu-mode))
 
 (use-package flyspell
   :diminish
@@ -367,16 +367,6 @@ point reaches the beginning or end of the buffer, stop there."
   (flyspell-incorrect ((t (:underline (:color "#f1fa8c" :style wave)))))
   (flyspell-duplicate ((t (:underline (:color "#50fa7b" :style wave)))))
   :preface
-  (defun message-off-advice (oldfun &rest args)
-    "Quiet down messages in adviced OLDFUN."
-    (let ((message-off (make-symbol "message-off")))
-      (unwind-protect
-          (progn
-            (advice-add #'message :around #'ignore (list 'name message-off))
-            (apply oldfun args))
-        (advice-remove #'message message-off))))
-  :config
-  (advice-add #'ispell-init-process :around #'message-off-advice)
   (use-package flyspell-correct-ivy
     :bind ("C-M-:" . flyspell-correct-at-point)
     :config
@@ -406,21 +396,6 @@ point reaches the beginning or end of the buffer, stop there."
     (git-gutter:deleted  ((t (:foreground "#ff79c6" :background "#ff79c6"))))
     :config
     (global-git-gutter-mode +1))
-
-(use-package dashboard
-  :disabled
-  :diminish
-  (dashboard-mode page-break-lines-mode)
-  :custom
-  (dashboard-center-content t)
-  (dashboard-startup-banner 4)
-  (dashboard-items '((recents . 15)
-                     (projects . 5)
-                     (bookmarks . 5)))
-  :custom-face
-  (dashboard-heading ((t (:foreground "#f1fa8c" :weight bold))))
-  :hook
-  (after-init . dashboard-setup-startup-hook))
 
 (use-package display-line-numbers
   :ensure nil
@@ -711,4 +686,5 @@ When `universal-argument' is called first, cut whole buffer (but respect `narrow
 (load "~/.emacs.d/elisp/goanna/gxsl-mode.el")
 
 ;;; (setq initial-buffer-choice "~/.emacs.d/init.el")
-(setq initial-buffer-choice 'recentf-open-files) 
+;;; (setq initial-buffer-choice 'recentf-open-files)
+
