@@ -37,12 +37,15 @@
 ;;----------------------------------------------------------------------------
 (require 'package)
 (setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
-;;; Can move to eval-when-compile when things stablises
-;;; https://ladicle.com/post/config/
+(setq package-archive-priorities
+      '(("melpa-stable" . 20)
+        ("gnu" . 10)
+        ("melpa" . 0)))
+
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -506,13 +509,14 @@ point reaches the beginning or end of the buffer, stop there."
         :ensure t
         :config
         (setq tuareg-use-smie nil)
-        (load-file  "~/.opam/default/share/emacs/site-lisp/ocp-indent.el")
         (add-hook 'tuareg-mode-hook #'electric-pair-local-mode)
         ;; (add-hook 'tuareg-mode-hook 'tuareg-imenu-set-imenu)
         (setq auto-mode-alist
               (append '(("\\.ml[ily]?$" . tuareg-mode)
                         ("\\.topml$" . tuareg-mode))
-                      auto-mode-alist)))
+                      auto-mode-alist))
+        (if (file-directory-p "~/.opam/default/share/emacs/site-lisp/ocp-indent.el")
+            (load-file  "~/.opam/default/share/emacs/site-lisp/ocp-indent.el")))
 
       ;; Merlin configuration
 
