@@ -49,7 +49,7 @@
   (package-refresh-contents)
   (package-install 'diminish)
   (package-install 'use-package))
-(setq use-package-verbose t)
+;; (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
 (eval-when-compile
@@ -147,9 +147,6 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Show column number
 (column-number-mode 1)
 
-;;; Javascript
-(add-to-list 'auto-mode-alist '("\\.js\\'\\|\\.json\\'" . js2-mode))
-
 (add-hook 'after-make-frame-functions
           (lambda (frame)
             (select-frame frame)))
@@ -162,11 +159,15 @@ point reaches the beginning or end of the buffer, stop there."
 ;;; Packages
 ;;----------------------------------------------------------------------------
 
+;;; TODO
+;; (require 'whitespace)
+;; (setq whitespace-style '(face empty tabs lines-tail trailing))
+;; (global-whitespace-mode t)
+
 (use-package magit
-  :ensure t
   :bind (("C-x g" . magit-status)))
 
-;;; Autocomplete
+;;; Autocomplete TODO: Do more
 (use-package company
   :config (add-hook 'prog-mode-hook 'company-mode))
 
@@ -202,15 +203,11 @@ point reaches the beginning or end of the buffer, stop there."
          ("C-x c y" . helm-yas-complete)
          ("C-x c Y" . helm-yas-create-snippet-on-region)
          ("C-x c SPC" . helm-all-mark-rings)))
-;; (ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
+
+(ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
 
 ;;; Display a more compact mode line
 (use-package smart-mode-line)
-
-;;; Minibuffer editing - more space!
-(use-package miniedit
-  :commands minibuffer-edit
-  :init (miniedit-install))
 
 ;;; This lets you use C-x u (undo-tree-visualize) to visually walk through the changes you've made, undo back to a certain point (or redo), and go down different branches.
 (use-package undo-tree
@@ -244,7 +241,7 @@ point reaches the beginning or end of the buffer, stop there."
   :ensure nil
   :hook (after-init . recentf-mode)
   :custom
-  (recentf-max-saved-items 20000000)
+  (recentf-max-saved-items 200)
   (recentf-auto-cleanup 'never)
   (recentf-exclude '((expand-file-name package-user-dir)
                      ".cache"
@@ -304,7 +301,7 @@ point reaches the beginning or end of the buffer, stop there."
   :diminish
   :hook (after-init . global-auto-revert-mode))
 
-;; Hungry deletion
+;;; deleting a whitespace character will delete all whitespace until the next non-whitespace character.
 (use-package hungry-delete
   :diminish
   :hook (after-init . global-hungry-delete-mode)
@@ -463,11 +460,11 @@ point reaches the beginning or end of the buffer, stop there."
   :init
   (add-hook 'after-init-hook 'bm-repository-load)
   (add-hook 'find-file-hooks 'bm-buffer-restore)
-  (add-hook 'after-revert-hook #'bm-buffer-restore)
-  (add-hook 'kill-buffer-hook #'bm-buffer-save)
-  (add-hook 'after-save-hook #'bm-buffer-save)
+  (add-hook 'after-revert-hook 'bm-buffer-restore)
+  (add-hook 'kill-buffer-hook 'bm-buffer-save)
+  (add-hook 'after-save-hook 'bm-buffer-save)
   (add-hook 'vc-before-checkin-hook #'bm-buffer-save)
-  (add-hook 'kill-emacs-hook #'(lambda nil
+  (add-hook 'kill-emacs-hook '(lambda nil
                                  (bm-buffer-save-all)
                                  (bm-repository-save))))
 
@@ -503,6 +500,38 @@ point reaches the beginning or end of the buffer, stop there."
 ;;----------------------------------------------------------------------------
 ;;; Languages
 ;;----------------------------------------------------------------------------
+
+ (and (require 'cl)
+      (use-package tuareg
+        :ensure t
+        :config
+        (setq tuareg-use-smie nil)
+        (load-file  "~/.opam/default/share/emacs/site-lisp/ocp-indent.el")
+        (add-hook 'tuareg-mode-hook #'electric-pair-local-mode)
+        ;; (add-hook 'tuareg-mode-hook 'tuareg-imenu-set-imenu)
+        (setq auto-mode-alist
+              (append '(("\\.ml[ily]?$" . tuareg-mode)
+                        ("\\.topml$" . tuareg-mode))
+                      auto-mode-alist)))
+
+      ;; Merlin configuration
+
+      (use-package merlin
+        :ensure t
+        :config
+        (add-hook 'tuareg-mode-hook 'merlin-mode)
+        (add-hook 'merlin-mode-hook #'company-mode)
+        (setq merlin-error-after-save nil))
+      
+      ;; utop configuration
+
+      (use-package utop
+        :ensure t
+        :config
+        (autoload 'utop-minor-mode "utop" "Minor mode for utop" t)
+        (add-hook 'tuareg-mode-hook 'utop-minor-mode)
+        ))
+
 
 (use-package js2-mode
   :mode "\\.js\\'"
