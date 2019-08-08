@@ -42,9 +42,9 @@
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 
 (setq package-archive-priorities
-      '(("melpa-stable" . 20)
+      '(("melpa-stable" . 0)
         ("gnu" . 10)
-        ("melpa" . 0)))
+        ("melpa" . 20)))
 
 (package-initialize)
 
@@ -180,6 +180,8 @@ point reaches the beginning or end of the buffer, stop there."
   :init
   (winner-mode))
 
+(use-package smex)
+
 (use-package helm
   :diminish helm-mode
   :init
@@ -200,12 +202,15 @@ point reaches the beginning or end of the buffer, stop there."
          ("C-x C-b" . helm-buffers-list)
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
-         ("M-x" . helm-M-x)
          ("C-x c o" . helm-occur)
          ("C-x c s" . helm-swoop)
          ("C-x c y" . helm-yas-complete)
          ("C-x c Y" . helm-yas-create-snippet-on-region)
          ("C-x c SPC" . helm-all-mark-rings)))
+
+(use-package helm-smex
+  :bind (("M-x" . #'helm-smex)
+         ("M-X" . #'helm-smex-major-mode-commands)))
 
 (ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
 
