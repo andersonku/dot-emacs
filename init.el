@@ -45,6 +45,8 @@
       '(("melpa-stable" . 0)
         ("gnu" . 10)
         ("melpa" . 20)))
+;;; You can pin packages to repo if you want a stable one
+;;; http://www.lonecpluspluscoder.com/2014/11/25/using-elpa-pinned-packages-gnu-emacs-24-4/
 
 (package-initialize)
 
@@ -158,6 +160,17 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key   [mouse-4] '(lambda () (interactive) (scroll-down 1)))
 (global-set-key   [mouse-5] '(lambda () (interactive) (scroll-up   1)))
 
+(setq frame-title-format
+      '((:eval (if (buffer-file-name)
+                   (abbreviate-file-name (buffer-file-name))
+                 "%b"))))
+
+;;; Files end with a new line
+(setq require-final-newline t)
+
+;; smart tab behavior - indent or complete
+(setq tab-always-indent 'complete)
+
 ;;----------------------------------------------------------------------------
 ;;; Packages
 ;;----------------------------------------------------------------------------
@@ -166,6 +179,17 @@ point reaches the beginning or end of the buffer, stop there."
 ;; (require 'whitespace)
 ;; (setq whitespace-style '(face empty tabs lines-tail trailing))
 ;; (global-whitespace-mode t)
+
+;;; Better than isearch?
+(use-package swiper)
+
+;;; Count the hit in isearch
+(use-package anzu
+  :ensure t
+  :bind (("M-%" . anzu-query-replace)
+         ("C-M-%" . anzu-query-replace-regexp))
+  :config
+  (global-anzu-mode))
 
 (use-package magit
   :bind (("C-x g" . magit-status)))
@@ -200,6 +224,7 @@ point reaches the beginning or end of the buffer, stop there."
   :bind (("<f1> h" . helm-mini)
          ("<f1> a" . helm-apropos)
          ("C-x C-b" . helm-buffers-list)
+         ("C-x C-f" . helm-find-files)
          ("C-x b" . helm-buffers-list)
          ("M-y" . helm-show-kill-ring)
          ("C-x c o" . helm-occur)
@@ -213,6 +238,18 @@ point reaches the beginning or end of the buffer, stop there."
          ("M-X" . #'helm-smex-major-mode-commands)))
 
 (ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
+
+(use-package posframe)
+
+(use-package helm-posframe
+  :after helm
+  :demand t
+  :config
+  ;; (setq helm-posframe-poshandler
+  ;;       #'posframe-poshandler-window-center)
+  ;; (setq helm-posframe-width 100)
+
+  (helm-posframe-enable))
 
 ;;; Display a more compact mode line
 (use-package smart-mode-line)
@@ -335,17 +372,20 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 ;;; macOS
-;; (when (equal system-type 'darwin)
-;;   (setq mac-option-modifier 'super)
-;;   (setq mac-command-modifier 'meta)
-;;   (setq ns-auto-hide-menu-bar t)
-;;   (setq ns-use-proxy-icon nil)
-;;   (setq initial-frame-alist
-;;      (append
-;;       '((ns-transparent-titlebar . t)
-;;         (ns-appearance . dark)
-;;         (vertical-scroll-bars . nil)
-;;         (internal-border-width . 0)))))
+(when (equal system-type 'darwin)
+  (setq mac-option-modifier 'super)
+  (setq mac-command-modifier 'meta)
+  (setq ns-auto-hide-menu-bar t)
+  (setq ns-use-proxy-icon nil)
+  (setq initial-frame-alist
+     (append
+      '((ns-transparent-titlebar . t)
+        (ns-appearance . dark)
+        (vertical-scroll-bars . nil)
+        (internal-border-width . 0)))))
+
+(when (string= system-type "darwin")       
+  (setq dired-use-ls-dired nil))
 
 ;; pbcopy
 (use-package pbcopy
@@ -456,6 +496,15 @@ point reaches the beginning or end of the buffer, stop there."
 (use-package rainbow-delimiters
   :hook
   (prog-mode . rainbow-delimiters-mode))
+
+(use-package whitespace
+  :init
+  (dolist (hook '(prog-mode-hook text-mode-hook))
+    (add-hook hook #'whitespace-mode))
+;;  (add-hook 'before-save-hook #'whitespace-cleanup)
+  :config
+  (setq whitespace-line-column 100) ;; limit line length
+  (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
 (use-package bm
   :bind (("C-c b b" . bm-toggle)
